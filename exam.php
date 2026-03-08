@@ -4,10 +4,12 @@
  * Plugin URI: https://example.com
  * Description: A WordPress plugin for screening senior developer applicants with custom post types for students, exams, results.
  * Version: 1.0.0
- * Author: Your Name
- * Author URI: https://example.com
+ * Author: Muhammad Aamir Atiq
+ * Author URI: https://aamirstudio.com/
  * License: GPL-2.0+
  */
+
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 // Define constants
 define( 'EM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
@@ -29,7 +31,7 @@ class EM_CPT {
 			),
 			'public'       => true,
 			'capability_type' => 'post',
-			'supports'     => array( 'title', 'editor' ),
+			'supports'     => array( 'title' ),
 			'menu_icon'    => 'dashicons-groups',
 			'show_in_rest' => true,
 		) );
@@ -55,7 +57,7 @@ class EM_CPT {
 			),
 			'public'       => true,
 			'capability_type' => 'post',
-			'supports'     => array( 'title', 'editor' ),
+			'supports'     => array( 'title', ),
 			'menu_icon'    => 'dashicons-book',
 			'show_in_rest' => true,
 		) );
@@ -85,12 +87,49 @@ class EM_CPT {
 			'hierarchical' => false,
 			'show_ui'      => true,
 			'show_in_rest' => true,
+			"show_admin_column"  => true,
 		) );
+
+		// Class taxonomy for Students
+		register_taxonomy( 'em_class', array( 'em_student' ), array(
+			'labels'       => array(
+				'name'          => 'Class',
+				'singular_name' => 'Class',
+			),
+			'public'       		 => true,
+			'hierarchical' 		 => true,
+			'show_ui'      		 => true,
+			'show_in_rest' 		 => true,
+			"show_in_menu"       => true,
+			"show_in_nav_menus"  => true,
+			"show_admin_column"  => true,
+		) );
+		 
 	}
 }
 
 // Initialize plugin
 function em_init() {
 	EM_CPT::init();
+
+	// Load additional classes
+	require_once EM_PLUGIN_DIR . 'classes/class-em-term-meta.php';
+	require_once EM_PLUGIN_DIR . 'classes/class-em-exam-metabox.php';
+	require_once EM_PLUGIN_DIR . 'classes/class-em-result-metabox.php';
+	require_once EM_PLUGIN_DIR . 'classes/class-em-ajax.php';
+	require_once EM_PLUGIN_DIR . 'classes/class-em-shortcodes.php';
+	require_once EM_PLUGIN_DIR . 'classes/class-em-import.php';
+	require_once EM_PLUGIN_DIR . 'classes/class-em-reports.php';
+
+	// Initialize classes
+	EM_Term_meta::init();
+	EM_Exam_Metabox::init();
+	EM_Ajax::init();
+	EM_Shortcodes::init();
+	EM_Import::init();
+	EM_Reports::init();
+
+	// Result class
+	new EM_Result_Metabox();
 }
 add_action( 'plugins_loaded', 'em_init' );
